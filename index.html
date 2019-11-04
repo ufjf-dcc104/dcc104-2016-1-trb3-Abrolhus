@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="Sprite.js"></script>
+    <script src="Vector.js"></script>
+    <script src="Scene.js"></script>
+    <script src="Map.js"></script>
+    <title>ot.gun.Sh-</title>
+</head>
+<body>
+    <canvas></canvas>
+    <script>
+        var canvas = document.querySelector("canvas");
+        canvas.width = 720;
+        canvas.height = 480;
+        //canvas.width = window.innerWidth;
+        //canvas.height = window.innerHeight;
+        canvas.style.cursor = "none";
+        var ctx = canvas.getContext("2d");
+        
+
+        var teclas = {
+            up: 0,
+            down: 0,
+            left: 0,
+            right: 0,
+            space: 0,
+            last: 0,
+            mb1: 0,
+            shift: 0,
+            r: 0,
+        }
+        var mapa = new Map({COLUMNS:12, LINES:10, m:
+        [
+        [1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,0,1,1,1,0,0,0,1],
+        [1,0,1,1,0,0,0,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,0,0,1,1,0,1,1,1],
+        [1,0,0,0,0,1,1,0,0,0,1,1],
+        [1,0,0,0,1,1,1,0,0,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1],
+        ]
+        });
+        mapa.cells[6][9].tipo = 1;
+        mapa.cells[2][9].tipo = 1;
+        mapa.cells[4][9].tipo = 1;
+        mapa.cells[4][2].tipo = 1;
+
+        
+        var cena1 = new Scene({ ctx: ctx, w: canvas.width, h: canvas.height, assets: null, map:mapa });
+        var char = new Sprite({scene: cena1});
+        cena1.add(char);
+        function passo (t){
+            dt = (t-t0)/1000;
+
+            // char.update(dt, teclas);
+
+            // ctx.fillStyle = "tan"   
+            // ctx.fillRect(0,0,canvas.width, canvas.height);
+
+            // char.draw(ctx);
+
+            cena1.passo(dt, teclas);
+            t0 = t;
+            requestAnimationFrame(passo);
+
+        }
+        var dt, t0 = 0;
+        requestAnimationFrame(passo);
+
+
+
+
+
+        addEventListener("keydown", function(e){
+            switch (e.keyCode){
+                case 37:
+                case 65:
+                    if(!teclas.left)
+                        teclas.last = "left";
+                
+                    teclas.left = 1;
+                    //teclas.last = "left";
+                    break;
+                case 38:
+                case 87:
+                    if(!teclas.up)
+                        teclas.lastY = "up";
+                    teclas.up = 1;
+                    //teclas.last = "left";
+                    break;
+                case 39:
+                case 68:
+                    if(!teclas.right)
+                        teclas.last = "right"
+                    teclas.right = 1;
+                    //teclas.last = "right";
+                    break;
+                case 40:
+                case 83:
+                    if(!teclas.down)
+                        teclas.lastY = "down"
+                    teclas.down = 1;
+                    
+                    //teclas.last = "left";
+                    break;
+                case 32:
+                    teclas.space = 1
+                    break;
+                case 16:
+                    teclas.shift = 1;
+                    break;
+                case 82:
+                    teclas.r = 1;
+                    break;
+                default:
+                    break;
+            }
+        });
+        addEventListener("keyup", function(e){
+            switch (e.keyCode){
+                case 37:
+                case 65:
+                    teclas.left = 0;
+                    break;
+                case 38:
+                case 87:
+                    teclas.up = 0;
+                    break;
+                case 39:
+                case 68:
+                    teclas.right = 0;
+                    break;
+                case 40:
+                case 83:
+                    teclas.down = 0;
+                    break;
+                case 32:
+                    teclas.space = 0;
+                    break;
+                case 16:
+                    teclas.shift = 0;
+                    break;
+                case 82:
+                    teclas.r = 0;
+                    break;
+                default:
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
