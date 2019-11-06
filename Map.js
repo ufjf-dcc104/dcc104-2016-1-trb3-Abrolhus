@@ -9,13 +9,13 @@ function Map(modelo) {
     for (var c = 0; c < this.COLUMNS; c++) {
         this.cells[c] = [];
         for (var l = 0; l < this.LINES; l++) {
-            exemplo.cells[c][l] = { tipo: 0 };
+            exemplo.cells[c][l] = { tipo: 0, color: "none"};
         }
     }
     if (modelo.m) {
         for (var c = 0; c < this.COLUMNS; c++) {
             for (var l = 0; l < this.LINES; l++) {
-                this.cells[c][l] = { tipo: modelo.m[l][c] };
+                this.cells[c][l] = { tipo: modelo.m[l][c], color: "none" };
             }
         }
     }
@@ -36,6 +36,9 @@ Map.prototype.draw = function (ctx) {
                     cor = "black";
             }
             ctx.fillStyle = cor;
+            if(this.cells[c][l].color != "none"){
+                ctx.fillStyle = this.cells[c][l].color;
+            }
             ctx.fillRect(c * this.SIZE, l * this.SIZE, this.SIZE, this.SIZE);
             ctx.strokeStyle = "black";
             ctx.strokeRect(c * this.SIZE, l * this.SIZE, this.SIZE, this.SIZE);
