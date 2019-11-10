@@ -29,7 +29,7 @@ Scene.prototype.update = function(dt, teclas){
     for(var i = 0; i<this.sprites.length; i++){
         this.sprites[i].update(dt, teclas);
     }  
-    this.map.cells[this.sprites[0].mc][this.sprites[0].ml].color = "white"; 
+    //this.map.cells[this.sprites[0].mc][this.sprites[0].ml].color = "white"; 
 };
 
 Scene.prototype.comportar = function(){
