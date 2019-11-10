@@ -45,3 +45,29 @@ Map.prototype.draw = function (ctx) {
         }
     }
 }
+Map.prototype.drawCell = function(ctx, col, lin, color){
+    ctx.fillStyle = color
+    ctx.fillRect(this.getCellX, this.getCellY, this.SIZE, this.SIZE);
+}
+Map.prototype.getCellX = function(col){
+    return col*this.SIZE;
+}
+Map.prototype.getCellY = function(lin){
+    return lin*this.SIZE;
+}
+Map.prototype.getSideOfCell = function(col, lin, dirX, dirY){
+    if(Math.abs(dirX) == 1 && dirY == 0){
+        if(dirX == 1){
+            return this.getCellX(col) + this.SIZE; //RIGHT SIDE
+        }
+        else return this.getCellX(col); //LEFT SIDE
+    }
+    else if(Math.abs(dirY) == 1 && dirX == 0){
+        if(dirY == 1){
+            return this.getCellY(lin) + this.SIZE; //BOT SIDE
+        }
+        else return this.getCellY(lin); //TOP SIDE
+
+    }
+    else return -1;
+}
