@@ -12,7 +12,7 @@ function Vector(x, y, mod){
                 this.y = 0;
             }
             else{
-                this.mod = 1;
+                this.mod = len;
                 this.x = x/len;
                 this.y = y/len;
             }
@@ -74,6 +74,30 @@ Vector.prototype.normal = function(x,y){
     if(len == 0)
         return new Vector();
     return new Vector(x/len, y/len, len);
+}
+Vector.prototype.zeroAxis = function(axis){
+    var aux;
+    if(axis == "x"){
+        var x = 0;
+        var y = this.projection("y")
+        aux = new Vector(x, y);
+        
+    }
+    else if(axis == "y"){
+        var y = 0;
+        var x = this.projection("x")
+        aux = new Vector(x, y);
+        console.log("isso:")
+        console.log(this);
+
+        console.log(aux);
+    }
+    if(aux){
+        this.x = aux.x;
+        this.y = aux.y;
+        this.mod = aux.mod
+    }
+
 }
 
 
