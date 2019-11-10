@@ -18,7 +18,7 @@
         canvas.height = 480;
         //canvas.width = window.innerWidth;
         //canvas.height = window.innerHeight;
-        canvas.style.cursor = "none";
+        //canvas.style.cursor = "none";
         var ctx = canvas.getContext("2d");
         
 
@@ -47,10 +47,10 @@
         [1,1,1,1,1,1,1,1,1,1,1,1],
         ]
         });
-        mapa.cells[6][9].tipo = 1;
-        mapa.cells[2][9].tipo = 1;
-        mapa.cells[4][9].tipo = 1;
-        mapa.cells[4][2].tipo = 1;
+        // mapa.cells[6][9].tipo = 1;
+        // mapa.cells[2][9].tipo = 1;
+        // mapa.cells[4][9].tipo = 1;
+        // mapa.cells[4][2].tipo = 1;
 
         
         var cena1 = new Scene({ ctx: ctx, w: canvas.width, h: canvas.height, assets: null, map:mapa });
