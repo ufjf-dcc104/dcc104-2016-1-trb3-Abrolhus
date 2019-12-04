@@ -1,15 +1,15 @@
 function Sprite(params){
     var normal = {
         color: "red",
-        w: 20,
-        h: 20,
+        w: 10,
+        h: 10,
 
         x: 200,
         y: 50,
         v: new Vector(1,0,0),
         a: new Vector(1,0,0),
         dir: new Vector(1,0,0), //direcao q o char esta olhando para
-        stdWalkAcceleration: 1000,
+        stdWalkAcceleration: 400,
         dirX: 0,
         dirY: 0,
 
@@ -22,21 +22,26 @@ function Sprite(params){
         inputForce: new Vector(), // o mesmo q new Vector(0,0,0)
         externalForces: [],
         friction: new Vector(),
-        airFriction: new Vector(),
+        airFriction: 1/2,
 
         gravity: new Vector(0,1,200),
-        jumpSpeed: 150,
+        jumpSpeed: 130,
+        vMax: 100,
+        vModifier: 1,
 
-        stdFrictionMod: 500,
+        stdFrictionMod: 100,
         is_sliding: false,
 
         can_walk: true,
         can_jump: true,
+        on_ground: true,
 
         scene: null,
 
         mc: null,
         mc: null,
+
+        flag: false,
 
 
     }
@@ -44,7 +49,16 @@ function Sprite(params){
 }
 Sprite.prototype.draw = function(ctx){
     ctx.fillStyle= this.color;
+    if(Math.abs(this.v.mod*this.v.x) > this.vMax){
+        ctx.fillStyle = "yellow";
+        if(this.dirY != -1){
+            ;
+        }
+    }
     ctx.strokeStyle="black";
+    if(this.flag){
+        ctx.fillStyle = "blue";
+    }
     ctx.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
     ctx.fillStyle= "blue";
     ctx.fillRect(this.x, this.y, 2, 2);
@@ -63,9 +77,17 @@ Sprite.prototype.mover = function(dt){
 Sprite.prototype.update = function(dt, teclas){
     this.getInput(teclas);
     this.setAInput();
-    this.addExternalForce(this.gravity);
+    if(this.dirY == -1){
+        this.addExternalForce(this.gravity);
+        this.flag = false;
+    }
+    else{
+        this.flag = true;
+        this.addExternalForce(this.gravity.rFloatProd(3));
+    }
+    
     this.mover(dt);
-    if(this.dirY == -1 && this.can_jump){
+    if(this.dirY == -1 && this.onGround){
 
         this.jump();
     }
@@ -78,7 +100,7 @@ Sprite.prototype.updateSpace = function(dt){
     this.y += this.v.projection("y")*dt;
 }
 Sprite.prototype.updateVelocity = function(dt){
-    
+    this.checkRun();
     this.v.add(this.rForce.rFloatProd(dt)); // v = v + "a"*dt;
 
 
@@ -88,6 +110,12 @@ Sprite.prototype.updateVelocity = function(dt){
         this.friction.mod = (this.stdFrictionMod*dt < Math.abs(this.v.projection("x"))) ? this.stdFrictionMod : this.v.projection("x");
         //solucao sem encalpsulamento devido
         this.v.add(this.friction.rFloatProd(dt));
+    }
+    else{
+        //this.v.mod *= this.airFriction;
+    }
+    if(Math.abs(this.v.mod*this.v.x) > this.vMax*this.vModifier){
+        this.v.x = Math.sign(this.v.x)*this.vMax*this.vModifier/this.v.mod;    
     }
 }
 Sprite.prototype.updateForce = function(){
@@ -122,7 +150,13 @@ Sprite.prototype.getInput = function(teclas){
         dirY = 1; 
     }
     else{
-
+        ;
+    }
+    if(teclas.shift){
+        this.isTryingToRun = true;
+    }
+    else{
+        this.isTryingToRun = false;
     }
     this.dirX = dirX;
     this.dirY = dirY;
@@ -138,15 +172,21 @@ Sprite.prototype.getInput = function(teclas){
     // }
 }
 Sprite.prototype.setAInput = function(){
+    var fAcc = this.stdWalkAcceleration;
     if(this.dirX != 0 && this.can_walk){
-        this.inputForce = new Vector(this.dirX, 0, this.stdWalkAcceleration);
+        if(this.isTryingToRun){
+            if(Math.abs(this.v.projection("x")) > this.vMax)
+                fAcc = this.stdWalkAcceleration*(0.40);
+        }
+        this.inputForce = new Vector(this.dirX, 0, fAcc);
 
     }
     // console.log(this.inputForce)
 }
 Sprite.prototype.jump = function(){
     //this.v.add(new Vector(0,1,-this.jumpSpeed));
-    this.v = this.v.normal(this.v.x*this.v.mod, -this.jumpSpeed); //cria um novo vetor velocidade que mantem "x" mas seta o "y" para "-jumpSpeed";
+    jumpSpeed = -(Math.abs(this.v.projection("x"))/this.vMax*0.38 + 1) *this.jumpSpeed;
+    this.v = this.v.normal(this.v.x*this.v.mod, jumpSpeed); //cria um novo vetor velocidade que mantem "x" mas seta o "y" para "-jumpSpeed";
 }
 Sprite.prototype.aplicaRestricoes = function (dt, map) {
     var vx = this.v.projection("x");
@@ -468,8 +508,24 @@ Sprite.prototype.preventeMapCollisions3 = function(dt, map){
             this.v.zeroAxis("y");
             console.log(this.v)
         }
-        this.x += dirX*Math.min(...xBarriers)
-        this.y += dirY*Math.min(...yBarriers)
+        // this.x += dirX*Math.min(...xBarriers)
+        // this.y += dirY*Math.min(...yBarriers)
+        // if(dirY*Math.min(...yBarriers) == 0){
+        //     this.onGround = true;
+        // } else{
+        //     this.onGround = false;
+        // }
+        var fdx = dirX*Math.min(...xBarriers);
+        var fdy = dirY*Math.min(...yBarriers);
+        
+        if(fdy == 0 && dy >= 0){
+            this.onGround = true;
+        } else{
+            this.onGround = false;
+            //fdx *= this.airFriction
+        }
+        this.x += fdx
+        this.y += fdy
         
     }
     else if(dx != 0 && dy == 0){
@@ -534,8 +590,17 @@ Sprite.prototype.preventeMapCollisions3 = function(dt, map){
         ctx.fillStyle = "darkblue"
         ctx.restore();
 
-        this.y += dirY*Math.min(...yBarriers)
+        var fdx = dirX*Math.min(...xBarriers);
+        var fdy = dirY*Math.min(...yBarriers);
         
+        if(fdy == 0 && dy >= 0){
+            this.onGround = true;
+        } else{
+            this.onGround = false;
+            //fdx *= this.airFriction
+        }
+        this.x += fdx
+        this.y += fdy
         console.log(Math.min(...yBarriers))
         console.log(this.y);
     }
@@ -543,5 +608,17 @@ Sprite.prototype.preventeMapCollisions3 = function(dt, map){
         return;
 
     }
+}
+Sprite.prototype.checkRun = function(){
+    if(this.isTryingToRun){
+        this.vModifier = 5;
+    }
+    else{
+        this.vModifier = 1;
+
+    }
+}
+Sprite.prototype.tenderA = function(valAtual, valDesejado){
+    
 }
 
