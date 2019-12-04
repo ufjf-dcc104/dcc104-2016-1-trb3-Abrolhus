@@ -90,6 +90,7 @@ Scene.prototype.passo = function(dt, teclas){
     this.drawMapa();
     //this.comportar();
     this.update(dt, teclas);
+    console.log(this.sprites[0].onGround)
     this.draw();
     //this.checaColisao();
     this.removeSprites();
